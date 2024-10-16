@@ -1,8 +1,9 @@
-# header.py
+# Author: Leon Gajtner
+# Datum 15.10.2024
+# Project: PDF Magic header file
 
-# Notwendige PyQt5 Module importieren
 from PyQt5.QtCore import pyqtSignal, QThread
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QDropEvent, QDragEnterEvent
 
 # Interfaces für PDF-Konverter und DropArea

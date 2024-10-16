@@ -1,4 +1,6 @@
-# impl.py
+# Author: Leon Gajtner
+# Datum 15.10.2024
+# Project: PDF Magic Implementation file
 
 # Importe aus header.py und die benötigten Bibliotheken
 from header import PDFConverterInterface, DropAreaInterface
