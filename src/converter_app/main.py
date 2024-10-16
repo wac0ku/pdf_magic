@@ -11,16 +11,18 @@ import logging
 
 class ModernButton(QPushButton):
     """
-    Custom button class with modern styling.
+    Custom button class with a modern style.
     """
     def __init__(self, text, color):
         """
-        Initialize the button with custom styling.
-        
-        :param text: Button text
-        :param color: Base color for the button
+        Initialize a ModernButton.
+
+        Args:
+        - text (str): The text to display on the button.
+        - color (str): The background color of the button.
         """
         super().__init__(text)
+        # Set the button style using CSS
         self.setStyleSheet(f"""
             QPushButton {{
                 background-color: {color};
@@ -53,7 +55,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PDF zu DOCX Konverter")
         self.setGeometry(100, 100, 800, 600)
 
-        # Define color scheme
+        # Define a modern color palette
         self.colors = {
             'background': '#F0F4F8',
             'primary': '#4A90E2',
@@ -62,7 +64,7 @@ class MainWindow(QMainWindow):
             'accent': '#FF6B6B'
         }
 
-        # Set window style
+        # Set the main window style
         self.setStyleSheet(f"""
             QMainWindow {{
                 background-color: {self.colors['background']};
@@ -72,7 +74,7 @@ class MainWindow(QMainWindow):
             }}
         """)
 
-        # Set up central widget and main layout
+        # Create and set the central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
@@ -88,7 +90,7 @@ class MainWindow(QMainWindow):
         """)
         layout.addWidget(title_label)
 
-        # Set up drop area
+        # Create and style the drop area
         self.drop_area = DropArea()
         self.drop_area.setStyleSheet(f"""
             QWidget {{
@@ -104,7 +106,7 @@ class MainWindow(QMainWindow):
         self.drop_area.files_dropped.connect(self.add_files)
         layout.addWidget(self.drop_area)
 
-        # Set up buttons
+        # Create buttons for file selection and conversion
         button_layout = QHBoxLayout()
         self.select_button = ModernButton("PDFs auswählen", self.colors['primary'])
         self.select_button.clicked.connect(self.select_files)
@@ -116,7 +118,7 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(button_layout)
 
-        # Set up progress bar
+        # Add progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setStyleSheet(f"""
             QProgressBar {{
@@ -132,7 +134,7 @@ class MainWindow(QMainWindow):
         """)
         layout.addWidget(self.progress_bar)
 
-        # Set up log text area
+        # Add log text area
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setStyleSheet(f"""
@@ -143,6 +145,7 @@ class MainWindow(QMainWindow):
         """)
         layout.addWidget(self.log_text)
 
+        # Initialize list to store PDF file paths
         self.pdf_files = []
 
         # Set up logging
@@ -151,17 +154,19 @@ class MainWindow(QMainWindow):
 
     def select_files(self):
         """
-        Open a file dialog to select PDF files.
+        Open a file dialog to select PDF files and add them to the conversion list.
         """
         files, _ = QFileDialog.getOpenFileNames(self, "PDFs auswählen", "", "PDF Dateien (*.pdf)")
         self.add_files(files)
 
     def add_files(self, files):
         """
-        Add selected files to the conversion list.
-        
-        :param files: List of file paths to add
+        Add new PDF files to the conversion list and update the UI.
+
+        Args:
+        - files (list): List of file paths to add.
         """
+        # Filter out any duplicate files
         new_files = [f for f in files if f not in self.pdf_files]
         self.pdf_files.extend(new_files)
         self.log_text.append(f"<span style='color: {self.colors['secondary']};'>{len(new_files)} neue PDF(s) hinzugefügt.</span>")
@@ -170,7 +175,7 @@ class MainWindow(QMainWindow):
 
     def update_drop_area_label(self):
         """
-        Update the drop area label to show the number of selected files.
+        Update the drop area label to show the number of selected PDFs.
         """
         if self.pdf_files:
             self.drop_area.label.setText(f"<span style='font-size: 18px;'>{len(self.pdf_files)} PDF(s) ausgewählt</span>")
@@ -186,28 +191,32 @@ class MainWindow(QMainWindow):
             self.log_text.append(f"<span style='color: {self.colors['accent']};'>Keine PDF-Dateien ausgewählt.</span>")
             return
 
+        # Create a PDFConverter instance and connect its signals
         self.converter = PDFConverter(self.pdf_files)
         self.converter.update_progress.connect(self.update_progress)
         self.converter.update_log.connect(self.update_log)
         self.converter.finished.connect(self.conversion_finished)
         self.converter.start()
 
+        # Disable buttons during conversion
         self.convert_button.setEnabled(False)
         self.select_button.setEnabled(False)
 
     def update_progress(self, value):
         """
-        Update the progress bar.
-        
-        :param value: Progress value (0-100)
+        Update the progress bar value.
+
+        Args:
+        - value (int): The new progress value (0-100).
         """
         self.progress_bar.setValue(value)
 
     def update_log(self, message):
         """
-        Update the log text area with a new message.
-        
-        :param message: Log message to append
+        Add a message to the log text area and log it.
+
+        Args:
+        - message (str): The message to add to the log.
         """
         self.log_text.append(f"<span style='color: {self.colors['text']};'>{message}</span>")
         self.logger.info(message)
@@ -216,8 +225,10 @@ class MainWindow(QMainWindow):
         """
         Handle the completion of the conversion process.
         """
+        # Re-enable buttons
         self.convert_button.setEnabled(True)
         self.select_button.setEnabled(True)
+        # Clear the list of PDF files
         self.pdf_files = []
         self.update_drop_area_label()
         self.log_text.append(f"<span style='color: {self.colors['secondary']};'>Konvertierung abgeschlossen.</span>")
