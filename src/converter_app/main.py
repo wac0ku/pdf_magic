@@ -9,11 +9,39 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 import sys
 import os
+import pkg_resources
 import subprocess
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Requirements installieren
+def install_requirements(requirements_file="requirements.txt"):
+    """
+    Installiere die Pakete aus der requirements.txt, wenn sie nicht bereits installiert sind.
+    """
+    try:
+        with open(requirements_file) as f:
+            requirements = f.read().splitlines()
+        
+        # Überprüfe, welche Pakete installiert sind
+        installed_packages = {pkg.key for pkg in pkg_resources.working_set}
+        missing_packages = [pkg for pkg in requirements if pkg.split('==')[0] not in installed_packages]
+
+        if missing_packages:
+            print(f"Installiiere fehlender Pakete: {', '.join(missing_packages)}")
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', *missing_packages])
+        else:
+            print("Alle Anforderungen sind bereits erfüllt")
+    except Exception as e:
+        print(f"Fehler beim installieren der Anforderungen: {str(e)}")
+        sys.exit(1)
+
+
+# Führe die Funktion aus, bevor die Anwendung startet
+install_requirements()
+
 
 class ModernButton(QPushButton):
     """
