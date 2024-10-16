@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Requirements installieren
-def install_requirements(requirements_file="requirements.txt"):
+def install_requirements(requirements_file=r"src\converter_app\requirements.txt"):
     """
     Installiere die Pakete aus der requirements.txt, wenn sie nicht bereits installiert sind.
     """
