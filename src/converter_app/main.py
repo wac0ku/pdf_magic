@@ -4,11 +4,12 @@
 
 import logging
 from impl import PDFConverter, DropArea
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QProgressBar, QTextEdit, QFileDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QProgressBar, QTextEdit, QFileDialog, QLabel, QMessageBox
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 import sys
 import os
+import subprocess
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -234,23 +235,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Fehler beim Starten der Konvertierung: {str(e)}")
 
-    def update_progress(self, value):
-        """
-        Aktualisiere den Wert der Fortschrittsanzeige.
-
-        :param value: Der neue Fortschrittswert (0-100).
-        """
-        self.progress_bar.setValue(value)
-
-    def update_log(self, message):
-        """
-        Füge dem Protokolltextbereich eine Nachricht hinzu und protokolliere sie.
-
-        :param message: Die hinzuzufügende Nachricht.
-        """
-        self.log_text.append(f"<span style='color: {self.colors['text']};'>{message}</span>")
-        logger.info(message)
-
     def conversion_finished(self):
         """
         Handhabe den Abschluss des Konvertierungsprozesses.
@@ -258,12 +242,29 @@ class MainWindow(QMainWindow):
         try:
             self.convert_button.setEnabled(True)
             self.select_button.setEnabled(True)
-            self.pdf_files = []
-            self.update_drop_area_label()
+
+            # Frage User, ob er die Konbvertierten Dateien öffnen möchte
+            reply = QMessageBox.question(self, 'Datei öffnen',
+                                         "Möchten Sie die konvertierten Dateien jetzt öffnen?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                self.open_converted_files()
+
             self.log_text.append(f"<span style='color: {self.colors['secondary']};'>Konvertierung abgeschlossen.</span>")
             logger.info("Konvertierung abgeschlossen.")
+
         except Exception as e:
             logger.error(f"Fehler beim Abschluss der Konvertierung: {str(e)}")
+
+    def open_converted_files(self):
+        """
+        Öffne die konvertierten DOCX-Dateien mit Standardanwendungsprogramm.
+        """
+        for pdf_file in self.pdf_files:
+            docx_file = os.path.join(self.save_dir, os.path.basename(pdf_file).rsplit('.',1)[0] + '.docx')
+            if os.path.exists(docx_file):
+                subprocess.run(['start', '', docx_file], shell=True)
 
     def set_save_directorey(self):
         """
@@ -298,6 +299,24 @@ class MainWindow(QMainWindow):
                             ])
 
         logging.info("Logging in Datei initialisiert: %s", log_path)
+
+    def update_progress(self, value):
+        """
+        Aktualisiere den Wert der Fortschrittsanzeige.
+
+        :param value: Der neue Fortschrittswert (0-100).
+        """
+        self.progress_bar.setValue(value)
+
+    def update_log(self, message):
+        """
+        Füge dem Protokolltextbereich eine Nachricht hinzu und protokolliere sie.
+
+        :param message: Die hinzuzufügende Nachricht.
+        """
+        self.log_text.append(f"<span style='color: {self.colors['text']};'>{message}</span>")
+        logger.info(message)
+
 
 if __name__ == "__main__":
 
