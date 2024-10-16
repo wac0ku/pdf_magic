@@ -1,3 +1,7 @@
+# Author: Leon Gajtner
+# Datum 15.10.2024
+# Project: PDF Magic main file
+
 from impl import PDFConverter, DropArea
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QProgressBar, QTextEdit, QFileDialog, QLabel
 from PyQt5.QtGui import QColor, QPalette, QFont
@@ -6,7 +10,16 @@ import sys
 import logging
 
 class ModernButton(QPushButton):
+    """
+    Custom button class with modern styling.
+    """
     def __init__(self, text, color):
+        """
+        Initialize the button with custom styling.
+        
+        :param text: Button text
+        :param color: Base color for the button
+        """
         super().__init__(text)
         self.setStyleSheet(f"""
             QPushButton {{
@@ -29,12 +42,18 @@ class ModernButton(QPushButton):
         """)
 
 class MainWindow(QMainWindow):
+    """
+    Main application window for the PDF to DOCX converter.
+    """
     def __init__(self):
+        """
+        Initialize the main window and set up the UI.
+        """
         super().__init__()
         self.setWindowTitle("PDF zu DOCX Konverter")
         self.setGeometry(100, 100, 800, 600)
 
-        # Moderne Farbpalette
+        # Define color scheme
         self.colors = {
             'background': '#F0F4F8',
             'primary': '#4A90E2',
@@ -43,6 +62,7 @@ class MainWindow(QMainWindow):
             'accent': '#FF6B6B'
         }
 
+        # Set window style
         self.setStyleSheet(f"""
             QMainWindow {{
                 background-color: {self.colors['background']};
@@ -52,11 +72,12 @@ class MainWindow(QMainWindow):
             }}
         """)
 
+        # Set up central widget and main layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        # Titel
+        # Add title label
         title_label = QLabel("PDF zu DOCX Konverter")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet(f"""
@@ -67,6 +88,7 @@ class MainWindow(QMainWindow):
         """)
         layout.addWidget(title_label)
 
+        # Set up drop area
         self.drop_area = DropArea()
         self.drop_area.setStyleSheet(f"""
             QWidget {{
@@ -82,6 +104,7 @@ class MainWindow(QMainWindow):
         self.drop_area.files_dropped.connect(self.add_files)
         layout.addWidget(self.drop_area)
 
+        # Set up buttons
         button_layout = QHBoxLayout()
         self.select_button = ModernButton("PDFs auswählen", self.colors['primary'])
         self.select_button.clicked.connect(self.select_files)
@@ -93,6 +116,7 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(button_layout)
 
+        # Set up progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setStyleSheet(f"""
             QProgressBar {{
@@ -108,6 +132,7 @@ class MainWindow(QMainWindow):
         """)
         layout.addWidget(self.progress_bar)
 
+        # Set up log text area
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setStyleSheet(f"""
@@ -120,14 +145,23 @@ class MainWindow(QMainWindow):
 
         self.pdf_files = []
 
+        # Set up logging
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger(__name__)
 
     def select_files(self):
+        """
+        Open a file dialog to select PDF files.
+        """
         files, _ = QFileDialog.getOpenFileNames(self, "PDFs auswählen", "", "PDF Dateien (*.pdf)")
         self.add_files(files)
 
     def add_files(self, files):
+        """
+        Add selected files to the conversion list.
+        
+        :param files: List of file paths to add
+        """
         new_files = [f for f in files if f not in self.pdf_files]
         self.pdf_files.extend(new_files)
         self.log_text.append(f"<span style='color: {self.colors['secondary']};'>{len(new_files)} neue PDF(s) hinzugefügt.</span>")
@@ -135,6 +169,9 @@ class MainWindow(QMainWindow):
         self.update_drop_area_label()
 
     def update_drop_area_label(self):
+        """
+        Update the drop area label to show the number of selected files.
+        """
         if self.pdf_files:
             self.drop_area.label.setText(f"<span style='font-size: 18px;'>{len(self.pdf_files)} PDF(s) ausgewählt</span>")
         else:
@@ -142,6 +179,9 @@ class MainWindow(QMainWindow):
         self.drop_area.label.setStyleSheet(f"color: {self.colors['primary']};")
 
     def start_conversion(self):
+        """
+        Start the PDF to DOCX conversion process.
+        """
         if not self.pdf_files:
             self.log_text.append(f"<span style='color: {self.colors['accent']};'>Keine PDF-Dateien ausgewählt.</span>")
             return
@@ -156,13 +196,26 @@ class MainWindow(QMainWindow):
         self.select_button.setEnabled(False)
 
     def update_progress(self, value):
+        """
+        Update the progress bar.
+        
+        :param value: Progress value (0-100)
+        """
         self.progress_bar.setValue(value)
 
     def update_log(self, message):
+        """
+        Update the log text area with a new message.
+        
+        :param message: Log message to append
+        """
         self.log_text.append(f"<span style='color: {self.colors['text']};'>{message}</span>")
         self.logger.info(message)
 
     def conversion_finished(self):
+        """
+        Handle the completion of the conversion process.
+        """
         self.convert_button.setEnabled(True)
         self.select_button.setEnabled(True)
         self.pdf_files = []
@@ -175,4 +228,4 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app)
