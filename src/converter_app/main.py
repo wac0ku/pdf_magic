@@ -321,7 +321,7 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
 
     MainWindow.setup_logging(log_dir='logs', log_file='pdf_converter.log')
-
+    
     try:
         app = QApplication(sys.argv)
         app.setStyle("Fusion")
