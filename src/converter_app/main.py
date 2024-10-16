@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         """
         super().__init__()
         try:
-            self.setWindowTitle("PDF zu DOCX Konverter")
+            self.setWindowTitle("PDF Magic")
             self.setGeometry(100, 100, 800, 600)
 
             # Standard Speicherort festlegen:
@@ -92,7 +92,7 @@ class MainWindow(QMainWindow):
 
            
 
-            title_label = QLabel("PDF zu DOCX Konverter")
+            title_label = QLabel("PDF Magic Converter zu DOCX")
             title_label.setAlignment(Qt.AlignCenter)
             title_label.setStyleSheet(f"""
                 font-size: 24px;
@@ -321,7 +321,7 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
 
     MainWindow.setup_logging(log_dir='logs', log_file='pdf_converter.log')
-    
+
     try:
         app = QApplication(sys.argv)
         app.setStyle("Fusion")
