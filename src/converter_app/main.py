@@ -16,6 +16,8 @@ import subprocess
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Preprocessing 
+
 # Requirements installieren
 def install_requirements(requirements_file=r"src\converter_app\requirements.txt"):
     """
@@ -38,10 +40,10 @@ def install_requirements(requirements_file=r"src\converter_app\requirements.txt"
         print(f"Fehler beim installieren der Anforderungen: {str(e)}")
         sys.exit(1)
 
-
 # Führe die Funktion aus, bevor die Anwendung startet
 install_requirements()
 
+# Preprocessing End
 
 class ModernButton(QPushButton):
     """
