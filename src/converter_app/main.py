@@ -249,11 +249,11 @@ class MainWindow(QMainWindow):
     
     def setup_logging(log_dir='logs', log_file='application.log'):
         """
-        Set up logging to a file.
-        If the log directory doesn't exist, create it.
+        Richten Sie das Logging in eine Datei ein.
+        Falls das Log-Verzeichnis nicht existiert, wird es erstellt.
 
-        :param log_dir: The directory where the log file should be stored
-        :param log_file: The log file name
+        :param log_verzeichnis: Das Verzeichnis, in dem die Log-Datei gespeichert werden soll
+        :param log_datei: Der Name der Log-Datei
         """
         # Erstelle das Verzeichnis, falls es nicht existiert
         if not os.path.exists(log_dir):
