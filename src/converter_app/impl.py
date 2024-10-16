@@ -1,41 +1,47 @@
-# Author: Leon Gajtner
-# Datum 15.10.2024
-# Project: PDF Magic Implementation file
+# Autor: Leon Gajtner
+# Datum: 15.10.2024
+# Projekt: PDF Magic Implementierungsdatei
 
+import logging
 from header import PDFConverterInterface, DropAreaInterface
-from PyQt5.QtWidgets import QTextEdit, QPushButton, QProgressBar, QFileDialog, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QVBoxLayout, QLabel
 from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtCore import Qt 
 from pdf2docx import Converter
 import docx
 
+# Logging einrichten
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 class PDFConverter(PDFConverterInterface):
     """
-    Concrete implementation of the PDF converter.
+    Konkrete Implementierung des PDF-Konverters.
     """
     def run(self):
         """
-        Main method to convert PDF files to DOCX.
-        Processes each PDF file, updates progress, and emits status messages.
+        Hauptmethode zur Konvertierung von PDF-Dateien in DOCX.
+        Verarbeitet jede PDF-Datei, aktualisiert den Fortschritt und gibt Statusmeldungen aus.
         """
         total_files = len(self.pdf_files)
         for index, pdf_file in enumerate(self.pdf_files, start=1):
             try:
-                # Generate output filename
+                # Ausgabe-Dateiname generieren
                 docx_file = pdf_file.rsplit('.', 1)[0] + '.docx'
-                
-                # Convert PDF to DOCX
+                logger.info(f"Starte Konvertierung für Datei: {pdf_file}")
+
+                # PDF in DOCX konvertieren
                 cv = Converter(pdf_file)
                 cv.convert(docx_file)
                 cv.close()
 
-                # Adjust formatting of the converted document
+                # Formatierung des konvertierten Dokuments anpassen
                 doc = docx.Document(docx_file)
                 for paragraph in doc.paragraphs:
                     paragraph.style.font.name = 'Arial'
                     paragraph.style.font.size = docx.shared.Pt(11)
 
-                # Adjust formatting for tables
+                # Formatierung für Tabellen anpassen
                 for table in doc.tables:
                     for row in table.rows:
                         for cell in row.cells:
@@ -43,23 +49,25 @@ class PDFConverter(PDFConverterInterface):
                                 paragraph.style.font.name = 'Arial'
                                 paragraph.style.font.size = docx.shared.Pt(11)
 
-                # Save the formatted document
+                # Formatiertes Dokument speichern
                 doc.save(docx_file)
                 self.update_log.emit(f"Erfolgreich konvertiert: {pdf_file}")
+                logger.info(f"Erfolgreich konvertiert: {pdf_file}")
             except Exception as e:
                 self.update_log.emit(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
+                logger.error(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
             
-            # Update progress
+            # Fortschritt aktualisieren
             progress = int((index / total_files) * 100)
             self.update_progress.emit(progress)
 
 class DropArea(DropAreaInterface):
     """
-    Concrete implementation of the drop area widget.
+    Konkrete Implementierung des Drop-Bereich-Widgets.
     """
     def __init__(self):
         """
-        Initialize the drop area with a label.
+        Initialisiere den Drop-Bereich mit einem Label.
         """
         super().__init__()
         layout = QVBoxLayout()
@@ -70,10 +78,10 @@ class DropArea(DropAreaInterface):
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         """
-        Handle drag enter events.
-        Accept the event if it contains URLs (potential file paths).
-        
-        :param event: The drag enter event
+        Handhabung von Drag-Eingabe-Ereignissen.
+        Akzeptiere das Ereignis, wenn es URLs (mögliche Dateipfade) enthält.
+
+        :param event: Das Drag-Eingabe-Ereignis
         """
         if event.mimeData().hasUrls():
             event.accept()
@@ -82,10 +90,10 @@ class DropArea(DropAreaInterface):
 
     def dragMoveEvent(self, event):
         """
-        Handle drag move events.
-        Allow copy action if the event contains URLs.
-        
-        :param event: The drag move event
+        Handhabung von Drag-Bewegungs-Ereignissen.
+        Erlaube die Kopieraktion, wenn das Ereignis URLs enthält.
+
+        :param event: Das Drag-Bewegungs-Ereignis
         """
         if event.mimeData().hasUrls():
             event.setDropAction(Qt.CopyAction)
@@ -95,10 +103,10 @@ class DropArea(DropAreaInterface):
 
     def dropEvent(self, event: QDropEvent):
         """
-        Handle drop events.
-        Process dropped files if they are PDFs and emit a signal with the file list.
-        
-        :param event: The drop event
+        Handhabung von Drop-Ereignissen.
+        Verarbeite fallengelassene Dateien, wenn sie PDFs sind, und sende ein Signal mit der Dateiliste.
+
+        :param event: Das Drop-Ereignis
         """
         files = [url.toLocalFile() for url in event.mimeData().urls() if url.toLocalFile().lower().endswith('.pdf')]
         if files:
