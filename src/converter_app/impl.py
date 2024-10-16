@@ -1,6 +1,6 @@
 # Autor: Leon Gajtner
 # Datum: 15.10.2024
-# Projekt: PDF Magic Implementierungsdatei
+# Projekt: PDF Magic Implementierungs file
 
 import logging
 from header import PDFConverterInterface, DropAreaInterface

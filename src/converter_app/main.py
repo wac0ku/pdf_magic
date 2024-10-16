@@ -1,6 +1,6 @@
 # Autor: Leon Gajtner
 # Datum: 15.10.2024
-# Projekt: PDF Magic Hauptdatei
+# Projekt: PDF Magic main file
 
 import logging
 from impl import PDFConverter, DropArea

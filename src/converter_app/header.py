@@ -1,6 +1,6 @@
 # Autor: Leon Gajtner
 # Datum: 15.10.2024
-# Projekt: PDF Magic Header Datei
+# Projekt: PDF Magic Header file
 
 import logging
 from PyQt5.QtCore import pyqtSignal, QThread
