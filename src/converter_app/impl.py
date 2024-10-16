@@ -9,6 +9,7 @@ from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtCore import Qt 
 from pdf2docx import Converter
 import docx
+import os
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,6 +19,10 @@ class PDFConverter(PDFConverterInterface):
     """
     Konkrete Implementierung des PDF-Konverters.
     """
+    def __init__(self, pdf_files, save_dir):
+        super().__init__(pdf_files)
+        self.save_dir = save_dir
+
     def run(self):
         """
         Hauptmethode zur Konvertierung von PDF-Dateien in DOCX.
@@ -26,21 +31,18 @@ class PDFConverter(PDFConverterInterface):
         total_files = len(self.pdf_files)
         for index, pdf_file in enumerate(self.pdf_files, start=1):
             try:
-                # Ausgabe-Dateiname generieren
-                docx_file = pdf_file.rsplit('.', 1)[0] + '.docx'
-                logger.info(f"Starte Konvertierung für Datei: {pdf_file}")
-
+                # Ausgabe-Dateiname mit dem ausgewählten Speicherort generieren
+                docx_file = os.path.join(self.save_dir, os.path.basename(pdf_file).rsplit('.', 1)[0] + '.docx')
+                logging.info(f"Starte Konvertierung für Datei: {pdf_file} nach {docx_file}")
                 # PDF in DOCX konvertieren
                 cv = Converter(pdf_file)
                 cv.convert(docx_file)
                 cv.close()
-
                 # Formatierung des konvertierten Dokuments anpassen
                 doc = docx.Document(docx_file)
                 for paragraph in doc.paragraphs:
                     paragraph.style.font.name = 'Arial'
                     paragraph.style.font.size = docx.shared.Pt(11)
-
                 # Formatierung für Tabellen anpassen
                 for table in doc.tables:
                     for row in table.rows:
@@ -48,15 +50,13 @@ class PDFConverter(PDFConverterInterface):
                             for paragraph in cell.paragraphs:
                                 paragraph.style.font.name = 'Arial'
                                 paragraph.style.font.size = docx.shared.Pt(11)
-
                 # Formatiertes Dokument speichern
                 doc.save(docx_file)
                 self.update_log.emit(f"Erfolgreich konvertiert: {pdf_file}")
-                logger.info(f"Erfolgreich konvertiert: {pdf_file}")
+                logging.info(f"Erfolgreich konvertiert: {pdf_file}")
             except Exception as e:
                 self.update_log.emit(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
-                logger.error(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
-            
+                logging.error(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
             # Fortschritt aktualisieren
             progress = int((index / total_files) * 100)
             self.update_progress.emit(progress)

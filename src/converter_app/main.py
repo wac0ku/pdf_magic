@@ -63,6 +63,9 @@ class MainWindow(QMainWindow):
             self.setWindowTitle("PDF zu DOCX Konverter")
             self.setGeometry(100, 100, 800, 600)
 
+            # Standard Speicherort festlegen:
+            self.save_dir = os.path.expanduser("~") # standard auf Home Verzeichnis
+
             # Definiere eine moderne Farbpalette
             self.colors = {
                 'background': '#F0F4F8',
@@ -81,10 +84,12 @@ class MainWindow(QMainWindow):
                     color: {self.colors['text']};
                 }}
             """)
-
+            # Button und Layout einrichten
             central_widget = QWidget()
             self.setCentralWidget(central_widget)
             layout = QVBoxLayout(central_widget)
+
+           
 
             title_label = QLabel("PDF zu DOCX Konverter")
             title_label.setAlignment(Qt.AlignCenter)
@@ -112,12 +117,20 @@ class MainWindow(QMainWindow):
             self.drop_area.files_dropped.connect(self.add_files)
             layout.addWidget(self.drop_area)
 
-            # Schaltflächen für Dateiauswahl und Konvertierung
+            # Button für Dateiauswahl und Konvertierung
             button_layout = QHBoxLayout()
+
+            # PDFs auswäheln
             self.select_button = ModernButton("PDFs auswählen", self.colors['primary'])
             self.select_button.clicked.connect(self.select_files)
             button_layout.addWidget(self.select_button)
 
+            # Button: Speicherort für konvertierte Files festlegen
+            self.save_dir_button = ModernButton("Speicherort festlegen", "#FF6B6B") # Rot
+            self.save_dir_button.clicked.connect(self.set_save_directorey)
+            layout.addWidget(self.save_dir_button)
+
+            # Konvertieren Button
             self.convert_button = ModernButton("Konvertieren", self.colors['secondary'])
             self.convert_button.clicked.connect(self.start_conversion)
             button_layout.addWidget(self.convert_button)
@@ -201,15 +214,21 @@ class MainWindow(QMainWindow):
         """
         try:
             if not self.pdf_files:
-                self.log_text.append(f"<span style='color: {self.colors['accent']};'>Keine PDF-Dateien ausgewählt.</span>")
+                self.log_text.append(f"<span style='color: #FF6B6B;'>Keine PDF-Dateien ausgewählt.</span>")
                 return
 
-            self.converter = PDFConverter(self.pdf_files)
+            if not self.save_dir:
+                self.log_text.append(f"<span style='color: #FF6B6B;'>Kein Speicherort ausgewählt.</span>")
+                return
+
+            # Erstelle eine Instanz des PDF-Konverters und übergebe den Speicherort (save_dir)
+            self.converter = PDFConverter(self.pdf_files, self.save_dir)  # Speicherort übergeben
             self.converter.update_progress.connect(self.update_progress)
             self.converter.update_log.connect(self.update_log)
             self.converter.finished.connect(self.conversion_finished)
             self.converter.start()
 
+            # Deaktiviere Buttons während der Konvertierung
             self.convert_button.setEnabled(False)
             self.select_button.setEnabled(False)
         except Exception as e:
@@ -246,7 +265,15 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Fehler beim Abschluss der Konvertierung: {str(e)}")
 
-    
+    def set_save_directorey(self):
+        """
+        Öffne einen Dateidialog, um den Speicherort für die konvertierten Dateien festzulegen.
+        """
+        save_dir = QFileDialog.getExistingDirectory(self ,"Speicherort festlegen", self.save_dir)
+        if save_dir:
+            self.save_dir = save_dir
+            logging.info(f"Neuer Speichherort für konvertierte Dateien festgelegt: {self.save_dir}")
+
     def setup_logging(log_dir='logs', log_file='application.log'):
         """
         Richten Sie das Logging in eine Datei ein.
