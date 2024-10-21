@@ -1,0 +1,4 @@
+2024-10-21 15:01:43,186 - INFO - Dokument formatiert und gespeichert: C:/Users/Gajtner/Desktop/konvertierungen\docx\Lebenslauf_Leon_Gajtner.docx
+2024-10-21 15:01:43,203 - ERROR - Fehler bei der Konvertierung von PDF zu Bildern: Unable to get page count. Is poppler installed and in PATH?
+2024-10-21 15:01:43,287 - INFO - Text erfolgreich aus PDF extrahiert: C:/Users/Gajtner/Desktop/Lebenslauf/Lebenslauf_Leon_Gajtner.pdf
+2024-10-21 15:01:43,287 - INFO - Erfolgreich verarbeitet: C:/Users/Gajtner/Desktop/Lebenslauf/Lebenslauf_Leon_Gajtner.pdf

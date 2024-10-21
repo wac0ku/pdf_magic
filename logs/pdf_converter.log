@@ -1,0 +1,8 @@
+2024-10-21 13:34:27,270 - INFO - Dokument formatiert und gespeichert: C:/Users/Gajtner/Desktop/konvertierungen\Lebenslauf_Leon_Gajtner.docx
+2024-10-21 13:34:27,284 - ERROR - Fehler bei der Konvertierung von PDF zu Bildern: Unable to get page count. Is poppler installed and in PATH?
+2024-10-21 13:34:27,305 - ERROR - Fehler bei der Textextraktion aus PDF: tesseract is not installed or it's not in your PATH. See README file for more information.
+2024-10-21 13:34:27,305 - INFO - Erfolgreich konvertiert und formatiert: C:/Users/Gajtner/Desktop/Lebenslauf/Lebenslauf_Leon_Gajtner.pdf
+2024-10-21 13:34:27,911 - INFO - Dokument formatiert und gespeichert: C:/Users/Gajtner/Desktop/konvertierungen\Anleitung_pitFM_Kostenstelle.docx
+2024-10-21 13:34:27,914 - ERROR - Fehler bei der Konvertierung von PDF zu Bildern: Unable to get page count. Is poppler installed and in PATH?
+2024-10-21 13:34:27,919 - ERROR - Fehler bei der Textextraktion aus PDF: tesseract is not installed or it's not in your PATH. See README file for more information.
+2024-10-21 13:34:27,919 - INFO - Erfolgreich konvertiert und formatiert: C:/Users/Gajtner/Desktop/Anleitung_pitFM_Kostenstelle.pdf

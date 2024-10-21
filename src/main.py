@@ -63,7 +63,15 @@ class ModernButton(QPushButton):
             logger.error(f"Fehler beim Einrichten des Button-Stils: {str(e)}")
 
 class EnhancedDropArea(QWidget):
+    """
+    Schnittstelle für ein Drop-Bereich-Widget.
+    Ermöglicht Drag-and-Drop-Funktionalität für Dateien.
+    """
     def __init__(self, parent=None):
+        """
+        Initialisiere das Drop-Bereich-Widget.
+        Konfiguriert das Widget, um Drop-Ereignisse zu akzeptieren.
+        """
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setMinimumSize(400, 200)
@@ -90,12 +98,24 @@ class EnhancedDropArea(QWidget):
         """)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
+        """
+        Abstrakte Methode zur Handhabung von Drag-Eingabe-Ereignissen.
+        Muss in abgeleiteten Klassen implementiert werden.
+
+        :param event: Das Drag-Eingabe-Ereignis
+        """
         if event.mimeData().hasUrls():
             event.accept()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):
+        """
+        Abstrakte Methode zur Handhabung von Drag-Bewegungs-Ereignissen.
+        Muss in abgeleiteten Klassen implementiert werden.
+
+        :param event: Das Drag-Bewegungs-Ereignis
+        """
         if event.mimeData().hasUrls():
             event.setDropAction(Qt.CopyAction)
             event.accept()
@@ -103,6 +123,12 @@ class EnhancedDropArea(QWidget):
             event.ignore()
 
     def dropEvent(self, event: QDropEvent):
+        """
+        Abstrakte Methode zur Handhabung von Drop-Ereignissen.
+        Muss in abgeleiteten Klassen implementiert werden.
+
+        :param event: Das Drop-Ereignis
+        """
         files = [url.toLocalFile() for url in event.mimeData().urls() if url.toLocalFile().lower().endswith('.pdf')]
         if files:
             event.setDropAction(Qt.CopyAction)
@@ -152,6 +178,8 @@ class MainWindow(QMainWindow):
                 'button4': '#f39c12',
                 'button5': '#9b59b6'
             }
+
+            self.converter = None
 
             self.setStyleSheet(f"QMainWindow {{background-color: {self.colors['background']};}}")
 
@@ -232,8 +260,17 @@ class MainWindow(QMainWindow):
             self.log_text.append(f"<span style='color: #FF6B6B;'>Keine PDF-Dateien ausgewählt.</span>")
             return
         self.converter = PDFConverter(pdf_files, self.save_dir)
+        self.converter.update_progress.connect(self.update_progress_bar)
+        self.converter.update_log.connect(self.update_log_text)
+        self.convert_button.setEnabled(False)
         self.converter.run()
         self.drop_area.clear_files()
+
+    def update_progress_bar(self, progress):
+        self.progress_bar.setValue(progress)
+
+    def update_log_text(self, log_entry):
+        self.log_text.append(log_entry)
 
     def start_pdf_to_image_conversion(self):
         pdf_files = self.drop_area.get_files()
@@ -241,7 +278,7 @@ class MainWindow(QMainWindow):
             self.log_text.append(f"<span style='color: #FF6B6B;'>Keine PDF-Dateien ausgewählt.</span>")
             return
         self.converter = PDFConverter(pdf_files, self.save_dir)
-        self.converter.convert_pdf_to_images()
+        self.converter.convert_pdf_to_images(pdf_files)
         self.drop_area.clear_files()
 
     def start_text_extraction(self):
@@ -250,7 +287,7 @@ class MainWindow(QMainWindow):
             self.log_text.append(f"<span style='color: #FF6B6B;'>Keine PDF-Dateien ausgewählt.</span>")
             return
         self.converter = PDFConverter(pdf_files, self.save_dir)
-        self.converter.extract_text_from_pdf()
+        self.converter.extract_text_from_pdf(pdf_files)
         self.drop_area.clear_files()
 
     def start_file_conversion(self):
@@ -258,6 +295,28 @@ class MainWindow(QMainWindow):
         if file:
             self.converter = PDFConverter([file], self.save_dir)
             self.converter.convert_from_file(file)
+
+    def conversion_finished(self):
+        """
+        Handhabe den Abschluss des Konvertierungsprozesses.
+        """
+        try:
+            self.convert_button.setEnabled(True)
+            self.select_button.setEnabled(True)
+
+            # Frage User, ob er die Konbvertierten Dateien öffnen möchte
+            reply = QMessageBox.question(self, 'Datei öffnen',
+                                         "Möchten Sie die konvertierten Dateien jetzt öffnen?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                self.open_converted_files()
+
+            self.log_text.append(f"<span style='color: {self.colors['secondary']};'>Konvertierung abgeschlossen.</span>")
+            logger.info("Konvertierung abgeschlossen.")
+
+        except Exception as e:
+            logger.error(f"Fehler beim Abschluss der Konvertierung: {str(e)}")
 
 if __name__ == "__main__":
     MainWindow.setup_logging(log_dir='logs', log_file='pdf_converter.log')
