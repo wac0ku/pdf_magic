@@ -21,7 +21,7 @@ class PDFConverter(PDFConverterInterface):
     """
     def __init__(self, pdf_files, save_dir):
         super().__init__(pdf_files)
-        self.save_dir = save_dir
+        self.save_dir = save_dir # Speicherort Attribut
 
     def run(self):
         """
@@ -34,15 +34,18 @@ class PDFConverter(PDFConverterInterface):
                 # Ausgabe-Dateiname mit dem ausgewählten Speicherort generieren
                 docx_file = os.path.join(self.save_dir, os.path.basename(pdf_file).rsplit('.', 1)[0] + '.docx')
                 logging.info(f"Starte Konvertierung für Datei: {pdf_file} nach {docx_file}")
+
                 # PDF in DOCX konvertieren
                 cv = Converter(pdf_file)
                 cv.convert(docx_file)
                 cv.close()
+
                 # Formatierung des konvertierten Dokuments anpassen
                 doc = docx.Document(docx_file)
                 for paragraph in doc.paragraphs:
                     paragraph.style.font.name = 'Arial'
                     paragraph.style.font.size = docx.shared.Pt(11)
+
                 # Formatierung für Tabellen anpassen
                 for table in doc.tables:
                     for row in table.rows:
@@ -50,13 +53,17 @@ class PDFConverter(PDFConverterInterface):
                             for paragraph in cell.paragraphs:
                                 paragraph.style.font.name = 'Arial'
                                 paragraph.style.font.size = docx.shared.Pt(11)
+
                 # Formatiertes Dokument speichern
                 doc.save(docx_file)
+
                 self.update_log.emit(f"Erfolgreich konvertiert: {pdf_file}")
                 logging.info(f"Erfolgreich konvertiert: {pdf_file}")
+
             except Exception as e:
                 self.update_log.emit(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
                 logging.error(f"Fehler bei der Konvertierung von {pdf_file}: {str(e)}")
+            
             # Fortschritt aktualisieren
             progress = int((index / total_files) * 100)
             self.update_progress.emit(progress)

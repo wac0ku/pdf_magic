@@ -24,13 +24,15 @@ def install_requirements(requirements_file=r"src\converter_app\requirements.txt"
     Installiere die Pakete aus der requirements.txt, wenn sie nicht bereits installiert sind.
     """
     try:
-        with open(requirements_file) as f:
+        # Requirements einlesen
+        with open(requirements_file) as f: 
             requirements = f.read().splitlines()
         
         # Überprüfe, welche Pakete installiert sind
         installed_packages = {pkg.key for pkg in pkg_resources.working_set}
         missing_packages = [pkg for pkg in requirements if pkg.split('==')[0] not in installed_packages]
 
+        # Fehlende Pakete installieren sonst 
         if missing_packages:
             print(f"Installiiere fehlender Pakete: {', '.join(missing_packages)}")
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', *missing_packages])
