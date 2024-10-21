@@ -37,8 +37,6 @@ Installation:
    3. Installiere die erforderlichen Pakete:
       ```bash
       pip install -r requirements.txt
-
-Nutzung
       
 
 
