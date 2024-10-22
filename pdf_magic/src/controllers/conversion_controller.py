@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSlot
-from src.workers.pdf_converter_worker import PDFConverterWorker
-from src.workers.image_to_pdf_worker import ImageToPDFWorker
+from workers.pdf_converter_worker import PDFConverterWorker
+from workers.image_to_pdf_worker import ImageToPDFWorker
 
 class ConversionController(QObject):
     def __init__(self, model, view, thread_pool):
