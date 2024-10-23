@@ -17,7 +17,7 @@ setup(
         ],
     },
     author="Leon Gajtner",
-    author_email="your.email@example.com",
+    author_email="l.gajtner@gmail.com",
     description="A PDF processing application with GUI",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

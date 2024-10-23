@@ -7,6 +7,7 @@ from PyQt5.QtCore import QThreadPool
 from ui.main_window import MainWindow
 
 # Models
+from models.conversion_manager import ConversionManager
 from models.settings_model import SettingsModel
 from models.conversion_model import ConversionModel
 from models.extraction_model import ExtractionModel
@@ -18,6 +19,7 @@ from controllers.extraction_controller import ExtractionController
 from controllers.settings_controller import SettingsController
 
 # Workers
+from workers.base_worker import BaseWorker, WorkerSignals
 from workers.pdf_converter_worker import PDFConverterWorker
 from workers.text_extractor_worker import TextExtractorWorker
 from workers.metadata_extractor_worker import MetadataExtractorWorker
@@ -46,6 +48,7 @@ class PDFMagicApp:
         self.thread_pool = QThreadPool()
         
         # Models
+        self.conversion_manager = ConversionManager()
         self.settings_model = SettingsModel()
         self.conversion_model = ConversionModel()
         self.extraction_model = ExtractionModel()
@@ -54,6 +57,7 @@ class PDFMagicApp:
         self.config_manager = ConfigManager('config.json')
         self.file_handler = FileHandler()
         self.pdf_processor = PDFProcessor()
+        self.error_handler = ErrorHandler()
         
         # Themes
         self.theme_manager = ThemeManager()
@@ -66,6 +70,10 @@ class PDFMagicApp:
         self.conversion_controller = ConversionController(self.conversion_model, self.main_window.conversion_tab, self.thread_pool)
         self.extraction_controller = ExtractionController(self.extraction_model, self.main_window.extraction_tab, self.thread_pool)
         self.settings_controller = SettingsController(self.settings_model, self.main_window.settings_dialog)
+
+        # Workers
+        self.worker_signals = WorkerSignals(PDFConverterWorker, TextExtractorWorker, MetadataExtractorWorker,  ImageToPDFWorker)
+        self.base_worker = BaseWorker()
 
         self.setup_controllers()
         self.setup_theme()
