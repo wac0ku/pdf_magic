@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QSpinBox, QPushButton
-from PyQt5.QtCore import Qt
 
 class ConversionTab(QWidget):
     def __init__(self, parent=None):

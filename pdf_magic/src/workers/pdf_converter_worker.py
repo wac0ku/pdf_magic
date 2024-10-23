@@ -1,34 +1,43 @@
-from PyQt5.QtCore import QRunnable
 from .base_worker import BaseWorker
-import fitz  # PyMuPDF
+from utils.pdf_processor import PDFProcessor
 
-class PDFConverterWorker(QRunnable, BaseWorker):
-    def __init__(self, pdf_path, output_format):
-        QRunnable.__init__(self)
-        BaseWorker.__init__(self)
-        self.pdf_path = pdf_path
-        self.output_format = output_format
+class PDFConverterWorker(BaseWorker):
+    def __init__(self, pdf_processor: PDFProcessor):
+        super().__init__()
+        self.pdf_processor = pdf_processor
+        self.input_path = None
+        self.output_path = None
+
+    def setup(self, input_path: str, output_path: str):
+        self.input_path = input_path
+        self.output_path = output_path
 
     def run(self):
         try:
-            doc = fitz.open(self.pdf_path)
-            total_pages = len(doc)
+            self.signals.started.emit()
+            
+            if not self.input_path or not self.output_path:
+                raise ValueError("Input and output paths must be set")
 
-            for page_num in range(total_pages):
-                page = doc.load_page(page_num)
+            # Konvertierung in Schritten durchführen
+            total_pages = self.pdf_processor.get_page_count(self.input_path)
+            
+            for i in range(total_pages):
+                if self.is_cancelled:
+                    return
                 
-                if self.output_format == 'docx':
-                    # Convert to DOCX (simplified, you might need a more complex solution)
-                    text = page.get_text()
-                    # Here you would save the text to a .docx file
-                elif self.output_format == 'image':
-                    pix = page.get_pixmap()
-                    pix.save(f"page_{page_num + 1}.png")
+                # Seite konvertieren
+                self.pdf_processor.convert_page(
+                    self.input_path, 
+                    self.output_path, 
+                    page_number=i
+                )
+                
+                # Fortschritt berechnen und Signal senden
+                progress = int((i + 1) / total_pages * 100)
+                self.signals.progress.emit(progress)
 
-                progress = int((page_num + 1) / total_pages * 100)
-                self.progress.emit(progress)
-
-            doc.close()
-            self.finished.emit()
+            self.signals.finished.emit()
+            
         except Exception as e:
-            self.error.emit(str(e))
+            self.signals.error.emit(str(e))

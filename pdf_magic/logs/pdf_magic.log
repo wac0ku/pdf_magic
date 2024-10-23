@@ -1,2 +1,16 @@
 2024-10-22 16:04:49,453 - pdf_magic - INFO - Starting PDF Magic application
 2024-10-22 16:04:50,291 - pdf_magic - INFO - Main window UI initialized
+2024-10-23 14:08:42,587 - pdf_magic - INFO - Using 12 threads
+2024-10-23 14:08:42,589 - pdf_magic - WARNING - Config file not foun f: config.json
+2024-10-23 14:08:42,590 - pdf_magic - ERROR - Uncaught exception: <class 'TypeError'>, PDFProcessor.__init__() missing 3 required positional arguments: 'input_files', 'save_dir', and 'operation'
+2024-10-23 14:08:42,590 - pdf_magic - ERROR -   File "c:\Users\Gajtner\Desktop\pdf_magic\pdf_magic\pdf_magic\src\main.py", line 198, in <module>
+    main()
+  File "c:\Users\Gajtner\Desktop\pdf_magic\pdf_magic\pdf_magic\src\main.py", line 194, in main
+    pdf_magic = PDFMagicApp()
+                ^^^^^^^^^^^^^
+  File "c:\Users\Gajtner\Desktop\pdf_magic\pdf_magic\pdf_magic\src\main.py", line 51, in __init__
+    self.initialize_components()
+  File "c:\Users\Gajtner\Desktop\pdf_magic\pdf_magic\pdf_magic\src\main.py", line 63, in initialize_components
+    self.pdf_processor = PDFProcessor()
+                         ^^^^^^^^^^^^^^
+
